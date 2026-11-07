@@ -1,0 +1,17 @@
+[package]
+name = "ggwave"
+version = "0.1.0"
+edition = "2021"
+description = "Pure safe Rust port of ggwave, the data-over-sound modem, wire-compatible with C ggwave"
+license = "MIT"
+repository = "https://github.com/katzenpost/ggwave-rs"
+keywords = ["ggwave", "audio", "data-over-sound", "fsk", "modem"]
+categories = ["multimedia::audio", "encoding"]
+publish = false
+exclude = ["tests/vectors/*.i16", "tools/"]
+
+[dependencies]
+
+# the decoder runs thousands of FFTs per message; keep `cargo test` quick
+[profile.test]
+opt-level = 2
