@@ -1,6 +1,8 @@
 MIT License
 
 Copyright (c) 2026 Katzenpost
+Copyright (c) 2020 Georgi Gerganov (ggwave, from which this crate is ported)
+Copyright (c) 2015 Mike Lubinets (the Reed-Solomon code bundled with ggwave)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
