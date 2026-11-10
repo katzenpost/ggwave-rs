@@ -13,18 +13,50 @@ payloads up to 64 bytes, DSS, and resampling to and from other sample rates.
 Encoded samples match C ggwave's output, and the decoder returns what C
 ggwave's decoder returns for the same audio. The library does no audio I/O.
 
+This crate was ported from C ggwave with the help of a large language model,
+and is checked against C ggwave with interop tests.
+
+## Examples
+
+Send a 32-byte code with Audible Fast, the protocol a phone and a T-Deck use
+to swap vouchers in [hushphone](https://github.com/katzenpost/hushphone):
+
+```rust
+use ggwave::{Encoder, Parameters, Protocol};
+
+fn main() -> Result<(), ggwave::Error> {
+    // The speaker's rate; 48 kHz is also ggwave's operating rate.
+    let params = Parameters { sample_rate_out: 48000.0, ..Parameters::default() };
+    let code = [0x5au8; 32];
+
+    // About 2.7 s of mono f32 samples in -1..1, at volume 25 of 100.
+    let samples: Vec<f32> = Encoder::new(params)?.encode(&code, Protocol::AudibleFast, 25)?;
+
+    // Hand `samples` to your audio output (cpal, a WAV writer, ...).
+    assert_eq!(samples.len(), 131072);
+    Ok(())
+}
+```
+
+Listen for it: feed the microphone's samples to a `Decoder` as they arrive,
+in blocks of any size, until it hands back a payload:
+
 ```rust
 use ggwave::{Decoder, Encoder, Parameters, Protocol};
 
-let params = Parameters::default(); // 48 kHz, variable-length payloads
-let samples: Vec<f32> = Encoder::new(params.clone())?
-    .encode(&[0u8; 32], Protocol::AudibleFast, 50)?;
+fn main() -> Result<(), ggwave::Error> {
+    // The microphone's rate; the decoder resamples to 48 kHz itself.
+    let fs = 44100;
+    let params = Parameters { sample_rate_inp: fs as f32, sample_rate_out: fs as f32, ..Parameters::default() };
+    let mut decoder = Decoder::with_protocols(params.clone(), &[Protocol::AudibleFast])?;
 
-let mut decoder = Decoder::new(params)?;
-for chunk in samples.chunks(1024) {
-    if let Some(payload) = decoder.push(chunk) {
-        println!("received {payload:02x?}");
-    }
+    // Stands in for the microphone: the tones as played at 44.1 kHz.
+    let mic = Encoder::new(params)?.encode(&[0x5au8; 32], Protocol::AudibleFast, 25)?;
+
+    // 20 ms blocks, as an audio input callback would deliver them.
+    let heard = mic.chunks(fs / 50).find_map(|block| decoder.push(block));
+    assert_eq!(heard.as_deref(), Some(&[0x5au8; 32][..]));
+    Ok(())
 }
 ```
 

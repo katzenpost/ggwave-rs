@@ -121,11 +121,7 @@ impl Encoder {
                         bits[(2 * j + 1) * 16 + (b >> 4) as usize] = true;
                     } else {
                         let b = encoded[offset / 2 + j];
-                        let nibble = if offset.is_multiple_of(2) {
-                            b & 15
-                        } else {
-                            b >> 4
-                        };
+                        let nibble = if offset % 2 == 0 { b & 15 } else { b >> 4 };
                         bits[2 * j * 16 + nibble as usize] = true;
                     }
                 }
