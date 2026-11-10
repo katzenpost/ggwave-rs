@@ -5,6 +5,7 @@
 //! follows the C algorithm step by step, including that it trusts the
 //! Berlekamp-Massey result without re-checking syndromes, so it accepts and
 //! rejects exactly the same inputs as C ggwave.
+use alloc::{vec, vec::Vec};
 
 const fn tables() -> ([u8; 512], [u8; 256]) {
     let mut exp = [0u8; 512];

@@ -1,8 +1,10 @@
 use crate::fft::Fft;
+use crate::math;
 use crate::protocol::ProtocolParams;
 use crate::reed_solomon::{self, ecc_bytes_for_length};
 use crate::resampler::Resampler;
 use crate::{dss_magic, Config, Error, Parameters, Protocol, BITS_IN_MARKER, MAX_LENGTH_VARIABLE};
+use alloc::{vec, vec::Vec};
 
 const MAX_SPECTRUM_HISTORY: usize = 4;
 const MAX_RECORDED_FRAMES: usize = 2048;
@@ -112,7 +114,7 @@ impl Decoder {
     /// In fixed-length mode, as in C ggwave, the same transmission can be
     /// reported again on the following frames.
     pub fn push(&mut self, samples: &[f32]) -> Option<Vec<u8>> {
-        let mut pending = std::mem::take(&mut self.pending);
+        let mut pending = core::mem::take(&mut self.pending);
         match &mut self.resampler {
             Some((resampler, input)) => {
                 input.extend_from_slice(samples);
@@ -168,7 +170,7 @@ impl Decoder {
     }
 
     fn marker_bin(&self, p: ProtocolParams, i: i32) -> usize {
-        (self.cfg.bit_freq(p, i) * self.cfg.ihz_per_sample as f64).round() as usize
+        math::round(self.cfg.bit_freq(p, i) * self.cfg.ihz_per_sample as f64) as usize
     }
 
     // true if every marker bit has the expected tone (`start`) or the inverted one
@@ -267,9 +269,10 @@ impl Decoder {
             }
             let bpt = p.bytes_per_tx as usize;
             let fpt = p.frames_per_tx;
-            let base_bin = ((self.cfg.hz_per_sample * p.freq_start as f32) as f64
-                * self.cfg.ihz_per_sample as f64)
-                .round() as usize;
+            let base_bin = math::round(
+                (self.cfg.hz_per_sample * p.freq_start as f32) as f64
+                    * self.cfg.ihz_per_sample as f64,
+            ) as usize;
 
             for ii in (0..nm * STEPS_PER_FRAME).rev() {
                 let mut known_length = false;
@@ -367,7 +370,7 @@ impl Decoder {
         let amax = 255.0f32 / if amax == 0.0 { 1.0 } else { amax };
         let row = &mut self.history_fixed[self.history_id_fixed];
         for (h, &s) in row.iter_mut().zip(&self.spectrum) {
-            *h = (s * amax).round().clamp(0.0, 255.0) as u8;
+            *h = math::roundf(s * amax).clamp(0.0, 255.0) as u8;
         }
         let history_len = self.history_fixed.len();
         self.history_id_fixed = (self.history_id_fixed + 1) % history_len;

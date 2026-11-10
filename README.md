@@ -1,8 +1,7 @@
 # ggwave
 
 A port of [ggwave](https://github.com/ggerganov/ggwave), Georgi Gerganov's
-data-over-sound modem, to safe Rust (`#![forbid(unsafe_code)]`, no
-dependencies, no FFI). It carries short payloads over audio with
+data-over-sound modem, to safe Rust (`#![forbid(unsafe_code)]`, no FFI). It carries short payloads over audio with
 multi-frequency FSK, Reed-Solomon error correction and start/end markers.
 
 The encoder and decoder follow C ggwave at commit
@@ -12,6 +11,9 @@ fast and fastest), variable-length payloads up to 140 bytes, fixed-length
 payloads up to 64 bytes, DSS, and resampling to and from other sample rates.
 Encoded samples match C ggwave's output, and the decoder returns what C
 ggwave's decoder returns for the same audio. The library does no audio I/O.
+
+It is `no_std` (it needs `alloc`): build with `default-features = false` and
+the float maths comes from `libm` instead of `std`, with the same output.
 
 This crate was ported from C ggwave with the help of a large language model,
 and is checked against C ggwave with interop tests.

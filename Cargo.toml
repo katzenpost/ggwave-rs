@@ -1,8 +1,8 @@
 [package]
 name = "ggwave"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-rust-version = "1.73"
+rust-version = "1.81"
 description = "Safe Rust port of ggwave, the data-over-sound modem, wire-compatible with C ggwave"
 license = "MIT"
 repository = "https://github.com/katzenpost/ggwave-rs"
@@ -14,7 +14,13 @@ categories = ["multimedia::audio", "encoding"]
 # users get the library; the C vectors, tests and tooling stay in the repo
 include = ["src/", "README.md", "LICENSE", "Cargo.toml"]
 
+[features]
+default = ["std"]
+# float maths from std; without it the libm crate supplies them
+std = []
+
 [dependencies]
+libm = { version = "0.2", default-features = false }
 
 # the decoder runs thousands of FFTs per message; keep `cargo test` quick
 [profile.test]
