@@ -1,20 +1,4 @@
-//! A pure safe Rust port of [ggwave](https://github.com/ggerganov/ggwave),
-//! the data-over-sound modem by Georgi Gerganov.
-//!
-//! The waveform format, Reed-Solomon coding, markers and decoder follow C
-//! ggwave at commit `060aec73dd7123ccac200442f75bdc7369795ffe`, so this crate
-//! and C ggwave can talk to each other over sound.
-//!
-//! ```
-//! use ggwave::{Decoder, Encoder, Parameters, Protocol};
-//!
-//! let params = Parameters::default(); // 48 kHz, variable-length payloads
-//! let samples = Encoder::new(params.clone())?.encode(b"hello", Protocol::AudibleFast, 50)?;
-//!
-//! let mut decoder = Decoder::new(params)?;
-//! assert_eq!(decoder.push(&samples).as_deref(), Some(&b"hello"[..]));
-//! # Ok::<(), ggwave::Error>(())
-//! ```
+#![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
