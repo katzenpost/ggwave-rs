@@ -15,12 +15,25 @@ jobs:
       - run: cargo fmt --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
+      - run: cargo test --no-default-features
       - name: Interop with C ggwave 060aec7
         run: GGWAVE_C=$(tools/build-c-ggwave.sh) cargo test --release --test c_interop
+      - name: Interop with C ggwave, libm build
+        run: GGWAVE_C=$(tools/build-c-ggwave.sh) cargo test --release --no-default-features --test c_interop
 
   msrv:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.73
+      - uses: dtolnay/rust-toolchain@1.81
       - run: cargo test
+      - run: cargo test --no-default-features
+
+  no-std:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: thumbv7em-none-eabihf
+      - run: cargo build --no-default-features --target thumbv7em-none-eabihf
