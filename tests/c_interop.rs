@@ -48,10 +48,8 @@ fn c_encode(
         .expect("run C ggwave");
     assert!(out.status.success(), "C encode failed");
     out.stdout
-        .as_chunks::<4>()
-        .0
-        .iter()
-        .map(|b| f32::from_le_bytes(*b))
+        .chunks_exact(4)
+        .map(|b| f32::from_le_bytes(b.try_into().unwrap()))
         .collect()
 }
 
@@ -310,10 +308,8 @@ fn dss_both_ways() {
         let out = Command::new(&tool).args(&args).output().unwrap();
         let c: Vec<f32> = out
             .stdout
-            .as_chunks::<4>()
-            .0
-            .iter()
-            .map(|b| f32::from_le_bytes(*b))
+            .chunks_exact(4)
+            .map(|b| f32::from_le_bytes(b.try_into().unwrap()))
             .collect();
         let max = r
             .iter()

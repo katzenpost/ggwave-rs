@@ -33,10 +33,8 @@ fn vectors() -> Vec<Vector> {
                 volume: f[4].parse().unwrap(),
                 payload: unhex(f[5]),
                 samples: bytes
-                    .as_chunks::<2>()
-                    .0
-                    .iter()
-                    .map(|b| i16::from_le_bytes(*b))
+                    .chunks_exact(2)
+                    .map(|b| i16::from_le_bytes(b.try_into().unwrap()))
                     .collect(),
             }
         })
