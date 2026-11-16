@@ -1,5 +1,7 @@
 //! Windowed-sinc resampler, ported from `GGWave::Resampler` so that output at
 //! a non-native rate matches C ggwave sample for sample.
+use crate::math;
+use alloc::{vec, vec::Vec};
 
 const WIDTH: i32 = 64;
 const DELAY_SIZE: usize = 140;
@@ -25,12 +27,12 @@ impl Resampler {
     pub fn new() -> Self {
         let n = (WIDTH * SAMPLES_PER_ZERO_CROSSING) as usize;
         let mut sinc_table = vec![0.0f32; n];
-        let win_freq = std::f64::consts::PI / WIDTH as f64 / SAMPLES_PER_ZERO_CROSSING as f64;
+        let win_freq = core::f64::consts::PI / WIDTH as f64 / SAMPLES_PER_ZERO_CROSSING as f64;
         sinc_table[0] = 1.0;
         for (i, s) in sinc_table.iter_mut().enumerate().skip(1) {
-            let temp = i as f64 * std::f64::consts::PI / SAMPLES_PER_ZERO_CROSSING as f64;
-            *s = (temp.sin() / temp) as f32;
-            let win = 0.5 + 0.5 * (win_freq * i as f64).cos();
+            let temp = i as f64 * core::f64::consts::PI / SAMPLES_PER_ZERO_CROSSING as f64;
+            *s = (math::sin(temp) / temp) as f32;
+            let win = 0.5 + 0.5 * math::cos(win_freq * i as f64);
             *s = (*s as f64 * win) as f32;
         }
         Resampler {
@@ -121,10 +123,10 @@ impl Resampler {
     }
 
     fn sinc(&self, x: f64) -> f64 {
-        if x.abs() >= (WIDTH - 1) as f64 {
+        if math::abs(x) >= (WIDTH - 1) as f64 {
             return 0.0;
         }
-        let temp = x.abs() * SAMPLES_PER_ZERO_CROSSING as f64;
+        let temp = math::abs(x) * SAMPLES_PER_ZERO_CROSSING as f64;
         let low = temp as usize;
         let delta = temp - low as f64;
         let a = self.sinc_table[low] as f64;

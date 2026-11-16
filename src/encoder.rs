@@ -1,7 +1,9 @@
+use crate::math;
 use crate::reed_solomon::{self, ecc_bytes_for_length};
 use crate::resampler::Resampler;
 use crate::{dss_magic, Config, Error, Parameters, Protocol, BITS_IN_MARKER};
-use std::f64::consts::PI;
+use alloc::{vec, vec::Vec};
+use core::f64::consts::PI;
 
 /// Turns payloads into ggwave waveforms.
 pub struct Encoder {
@@ -74,9 +76,10 @@ impl Encoder {
         let tone = |freq: f64, phase: f64| -> Vec<f32> {
             (0..spf)
                 .map(|i| {
-                    ((2.0 * PI) * (i as f64 * c.isamples_per_frame as f64) * (freq * cur_ihz)
-                        + phase)
-                        .sin() as f32
+                    math::sin(
+                        (2.0 * PI) * (i as f64 * c.isamples_per_frame as f64) * (freq * cur_ihz)
+                            + phase,
+                    ) as f32
                 })
                 .collect()
         };

@@ -1,4 +1,6 @@
 //! Power spectrum of a real frame, laid out the way C ggwave's decoder sees it.
+use crate::math;
+use alloc::{vec, vec::Vec};
 
 pub(crate) struct Fft {
     n: usize,
@@ -24,8 +26,8 @@ impl Fft {
             .collect();
         let (cos, sin) = (0..n / 2)
             .map(|k| {
-                let a = -2.0 * std::f64::consts::PI * k as f64 / n as f64;
-                (a.cos() as f32, a.sin() as f32)
+                let a = -2.0 * core::f64::consts::PI * k as f64 / n as f64;
+                (math::cos(a) as f32, math::sin(a) as f32)
             })
             .unzip();
         Fft {

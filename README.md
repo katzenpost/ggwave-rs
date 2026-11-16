@@ -5,8 +5,7 @@
 [![CI](https://github.com/katzenpost/ggwave-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/katzenpost/ggwave-rs/actions/workflows/ci.yml)
 
 A port of [ggwave](https://github.com/ggerganov/ggwave), Georgi Gerganov's
-data-over-sound modem, to safe Rust (`#![forbid(unsafe_code)]`, no
-dependencies, no FFI). It carries short payloads over audio with
+data-over-sound modem, to safe Rust (`#![forbid(unsafe_code)]`, no FFI). It carries short payloads over audio with
 multi-frequency FSK, Reed-Solomon error correction and start/end markers.
 It is written for Rust developers who need to exchange a few bytes with C
 ggwave or with another device over a speaker and microphone.
@@ -16,6 +15,10 @@ no audio I/O, so you bring your own (cpal, a WAV writer, a device driver).
 Payloads are at most 140 bytes, or 64 in fixed-length mode, and are neither
 encrypted nor authenticated; for more data or a secure channel, use another
 transport or put a protocol on top.
+
+It is `no_std` (it needs `alloc`): build with `default-features = false` and
+the float maths comes from `libm` instead of `std`, with the same output. The
+`extern-libm` feature links it from the platform C library (newlib on ESP-IDF) instead.
 
 This crate was ported from C ggwave with the help of a large language model,
 and is checked against C ggwave with interop tests.

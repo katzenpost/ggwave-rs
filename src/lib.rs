@@ -1,10 +1,18 @@
 #![doc = include_str!("../README.md")]
-#![forbid(unsafe_code)]
+#![no_std]
+#![cfg_attr(not(feature = "extern-libm"), forbid(unsafe_code))]
+// extern-libm: only math.rs calls the C maths functions
+#![cfg_attr(feature = "extern-libm", deny(unsafe_code))]
 #![warn(missing_docs)]
+
+extern crate alloc;
+#[cfg(any(feature = "std", test))]
+extern crate std;
 
 mod decoder;
 mod encoder;
 mod fft;
+mod math;
 mod protocol;
 mod reed_solomon;
 mod resampler;
@@ -78,8 +86,8 @@ pub enum Error {
     MonoToneNeedsFixedLength,
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Error::InvalidParameters(what) => write!(f, "invalid parameters: {what}"),
             Error::EmptyPayload => write!(f, "empty payload"),
@@ -94,7 +102,7 @@ impl std::fmt::Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
+impl core::error::Error for Error {}
 
 const MARKER_FRAMES: i32 = 16;
 const ENCODED_DATA_OFFSET: usize = 3;
