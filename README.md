@@ -13,7 +13,8 @@ Encoded samples match C ggwave's output, and the decoder returns what C
 ggwave's decoder returns for the same audio. The library does no audio I/O.
 
 It is `no_std` (it needs `alloc`): build with `default-features = false` and
-the float maths comes from `libm` instead of `std`, with the same output.
+the float maths comes from `libm` instead of `std`, with the same output. The
+`extern-libm` feature links it from the platform C library (newlib on ESP-IDF) instead.
 
 This crate was ported from C ggwave with the help of a large language model,
 and is checked against C ggwave with interop tests.
