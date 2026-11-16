@@ -1,6 +1,8 @@
 #![doc = include_str!("../README.md")]
 #![no_std]
-#![forbid(unsafe_code)]
+#![cfg_attr(not(feature = "extern-libm"), forbid(unsafe_code))]
+// extern-libm: only math.rs calls the C maths functions
+#![cfg_attr(feature = "extern-libm", deny(unsafe_code))]
 #![warn(missing_docs)]
 
 extern crate alloc;

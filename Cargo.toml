@@ -18,6 +18,8 @@ include = ["src/", "README.md", "LICENSE", "Cargo.toml"]
 default = ["std"]
 # float maths from std; without it the libm crate supplies them
 std = []
+# without std, take them from the platform C library (newlib, glibc) instead of libm
+extern-libm = []
 
 [dependencies]
 libm = { version = "0.2", default-features = false }
